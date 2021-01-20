@@ -85,14 +85,12 @@ http POST http://gateway:8080/orders qty=10 foodcaltalogid=1 customerid=1
 
 ### 주문 확인
 ```
-http POST http://gateway:8080/orders qty=10 foodcaltalogid=1 customerid=1
+http http://gateway:8080/orders
 ```
 ![image](https://user-images.githubusercontent.com/25506725/105142747-4c3b8080-5b3e-11eb-9289-ee053ed5570c.png)
 
 ##### Message 전송 확인 결과
-```
-{"eventType":"Ordered","timestamp":"20210119130159","id":3,"qty":20,"status":null,"foodcaltalogid":1,"customerid":1,"me":true}
-```
+![image](https://user-images.githubusercontent.com/25506725/105153140-6af44400-5b4b-11eb-969f-98f5212fc4d8.png)
 
 ##### MyOrder 조회 (CQRS), 현재상태 확인
 ```
@@ -100,19 +98,22 @@ http POST http://gateway:8080/orders qty=10 foodcaltalogid=1 customerid=1
 ```
 ![image](https://user-images.githubusercontent.com/25506725/105147541-ae977f80-5b44-11eb-8890-876c49ff2019.png)
 
+### 수량(foodcatalogView) 확인
+```
+# http DELETE http://gateway:8080/foodCatalogViews
+```
+![image](https://user-images.githubusercontent.com/25506725/105154306-c541d480-5b4c-11eb-9f5a-6376a0888259.png)
 
-### 주문 취소
-```
-# http DELETE http://gateway:8080/orders/46
-```
 
-##### Delivery 취소, 주문취소, Payment 취소 메시지 전송
+### 주방(kithen) 취소
 ```
-{"eventType":"DeliveryCanceled","timestamp":"20210119203304","id":1171,"status":"Cancelled-delivery","orderId":46,"me":true}
-{"eventType":"OrderCancelled","timestamp":"20210119203304","id":46,"qty":50,"status":＂Order Canceled","foodcaltalogid":1,"customerid":2,"me":true}
-{"eventType":"Cancelled","timestamp":"20210119203304","id":46,"amout":50,"status":"Order Canceled-payment","orderid":75,"me":true}
+# http DELETE http://gateway:8080/kitchens/1
+# http http://order:8080/orders
 ```
+![image](https://user-images.githubusercontent.com/25506725/105154618-1356d800-5b4d-11eb-9360-92bed80a707d.png)
 
+##### Kithen 취소, 주문취소, Delivery 취소, Payment 취소 메시지 전송
+![image](https://user-images.githubusercontent.com/25506725/105155008-76486f00-5b4d-11eb-9679-cd8444fd87e6.png)
 
 ### 장애 격리
 ```
