@@ -29,6 +29,9 @@
 ## 구현 점검
 
 ### 모든 서비스 정상 기동 
+
+![image](https://user-images.githubusercontent.com/25506725/105186830-70668400-5b75-11eb-9d94-0b55dddeaedd.png)
+
 ```
 * gateway 설정
 http http://gateway:8080/orders
@@ -137,20 +140,10 @@ http http://gateway:8080/orders
 
 ## Circuit Breaker 점검
 
-### Readiness 와 Liveness 제외후 Order 서비스 재생성
+### Hystrix로 설정
+![image](https://user-images.githubusercontent.com/25506725/105178182-0e088600-5b6b-11eb-8216-3339cd68bf27.png)
 
-```
-kubectl delete deploy order
-kubectl apply -f deployment2.yml 
-```
-### 부하발생
-
-```
-Kubectl exec –it siege -- /bin/bash
-siege -c100 -t60S -r10 -v --content-type "application/json" 'http://gateway:8080/orders POST {"qty": 50, "foodcaltalogid":1 , "customerid":2 }'
-
-```
-
+![image](https://user-images.githubusercontent.com/25506725/105178326-33958f80-5b6b-11eb-8187-4db58a4aaf1a.png)
 
 ### 실행결과
 
@@ -159,62 +152,32 @@ siege -c100 -t60S -r10 -v --content-type "application/json" 'http://gateway:8080
 
 
 ## Autoscale 점검
-### 설정 확인
-```
-     resources:
-            requests:
-              cpu: 1000m
-              memory: 256Mi
-            limits:
-              cpu: 2500m
-              memory: 512Mi
-```
-### 점검 순서
-```
+
+1. Deployment.yaml 파일 설정
+![image](https://user-images.githubusercontent.com/25506725/105182173-1616f480-5b70-11eb-85ca-d9a5f44d180b.png)
+
 1. HPA 생성 및 설정
-	kubectl autoscale deployment order --cpu-percent=10 --min=1 --max=10
-2. 모니터링 걸어놓고 확인
-	kubectl get hpa order -w
-	watch kubectl get deploy,po
-3. Siege 실행
-       siege -c100 -t60S -v 'http://order:8080/orders'
-```
+ kubectl autoscale deployment kitchen --cpu-percent=10 --min=1 --max=10
+![image](https://user-images.githubusercontent.com/25506725/105181828-a4d74180-5b6f-11eb-82aa-70eecce67fca.png)
 
-### 점검 결과
+2. Siege 실행 및 pod 개수 확인
+  
 
-![image](https://user-images.githubusercontent.com/62786155/105106704-b8e05c00-5af9-11eb-95c2-cdeb314c4404.png)
-![image](https://user-images.githubusercontent.com/62786155/105106715-bc73e300-5af9-11eb-9d16-88f486ecab7e.png)
 
 ## Readiness Probe 점검
 ### 설정 확인
-```
-   readinessProbe:
-      	    httpGet:
-              path: '/orders'
-              port: 8080
-            initialDelaySeconds: 10
-            timeoutSeconds: 2
-            periodSeconds: 5
-            failureThreshold: 10
+![image](https://user-images.githubusercontent.com/25506725/105185808-56787180-5b74-11eb-98d2-3e8719683fbb.png)
 
-```
-### 점검 순서
-#### 1. Siege 실행
-```
-siege -c100 -t60S -v 'http://order:8080/orders'
-```
-#### 2. Order 이미지 교체
+1.siege로 계속 호출하는 중에 kubectl set image를 통해서 배포 시 무중단 배포 확인
+ kubectl set image deployment order order=final05crg.azurecr.io/order:latest
+ 
+2.Readiness 적용 전: 소스배포시 오류 발생
 
-```
-  kubectl set image deployment order order=final05crg.azurecr.io/order:latest
-```
+![image](https://user-images.githubusercontent.com/25506725/105185984-8c1d5a80-5b74-11eb-9f1e-a5b77d60a754.png)
 
-#### 3. Pod 모니터링
-![image](https://user-images.githubusercontent.com/62786155/105107327-3fe20400-5afb-11eb-9b16-7fefba20c270.png)
+3. 적용 후: 소스배포시 100% 수행
 
+![image](https://user-images.githubusercontent.com/25506725/105186132-b96a0880-5b74-11eb-8d6a-a3fa3a5e981c.png)
 
-#### 4. Siege 결과 Availability 확인(100%)
-
-![image](https://user-images.githubusercontent.com/62786155/105107324-3e184080-5afb-11eb-935f-a35d85be1624.png)
 
 #### 5. CofingMap 적용
