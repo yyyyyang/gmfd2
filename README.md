@@ -173,9 +173,11 @@ AutoScale적용 후 seige를 통해서 부하 테스트 시 pod 개수가 증가
 
 ## Readiness Probe 점검
 ### 설정 확인
+
 ![image](https://user-images.githubusercontent.com/25506725/105185808-56787180-5b74-11eb-98d2-3e8719683fbb.png)
 
-1.siege로 계속 호출하는 중에 kubectl set image를 통해서 배포 시 무중단 배포 확인
+1.siege로 계속 호출하는 중에 kubectl set image를 통해서 배포 시 무중단 배포 확인, 
+
  kubectl set image deployment order order=final05crg.azurecr.io/order:latest
  
 2.Readiness 적용 전: 소스배포시 오류 발생
