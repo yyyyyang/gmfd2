@@ -100,51 +100,40 @@ http http://gateway:8080/orders
 ##### Kithen 취소, 주문취소, Delivery 취소, Payment 취소 메시지 전송
 ![image](https://user-images.githubusercontent.com/25506725/105155008-76486f00-5b4d-11eb-9679-cd8444fd87e6.png)
 
+##### kitchen 취소 시 foodcatalog 수량 확인
+![image](https://user-images.githubusercontent.com/25506725/105172726-66d42080-5b63-11eb-828c-be733939465a.png)
+
 ##### MyOrder 조회 (CQRS), 현재상태 확인
 ```
 # http http://gateway:8080/myOrders
 ```
 ![image](https://user-images.githubusercontent.com/25506725/105156335-0aff9c80-5b4f-11eb-8a03-eb7b9b998b66.png)
+ 
+#### review 등록 및 조회 (CQRS)
+```
+# http http://gateway:8080/reviews username=yang productname=cake content=good
+# http http://gateway:8080/reviewView 
+```
+![image](https://user-images.githubusercontent.com/25506725/105173947-1d84d080-5b65-11eb-8fd3-9975adb5aff2.png)
 
 ### 장애 격리
 ```
-1. Delivery 서비스 중지
-	kubectl delete deploy delivery
+1. Kithen 서비스 중지
+	kubectl delete deploy Kithen
 	
 2. 주문 생성
-	# http POST http://gateway:8080/orders qty=35 foodcaltalogid=2 customerid=2
-
-3. 주문 생성 결과 확인
-
-HTTP/1.1 201 Created
-Content-Type: application/json;charset=UTF-8
-Date: Tue, 19 Jan 2021 20:53:43 GMT
-Location: http://order:8080/orders/1375
-transfer-encoding: chunked
-
-{
-    "_links": {
-        "order": {
-            "href": "http://order:8080/orders/1375"
-        },
-        "self": {
-            "href": "http://order:8080/orders/1375"
-        }
-    },
-    "customerid": 2,
-    "foodcaltalogid": 2,
-    "qty": 35,
-    "status": null
-}
-
-4. Delivery 서비스 재성후 Shipped 메시지 정상 전송확인
-	
-	/gmfd/delivery/kubernetes$ kubectl apply -f deployment.yml
-
-{"eventType":"Shipped","timestamp":"20210119205555","id":1,"status":"Delivery Start","orderId":1375,"me":true}
+	# http POST http://gateway:8080/orders qty=10 foodcaltalogid=1 customerid=5
 ```
+3. Kithen 서비스 장애 시 주문 불가
 
-## CI/CD 점검
+![image](https://user-images.githubusercontent.com/25506725/105173107-e8c44980-5b63-11eb-9e4e-5f75fbd61f7b.png)
+
+
+4. Kithen 서비스 재성후 정상 전송확인
+	
+![image](https://user-images.githubusercontent.com/25506725/105173285-24f7aa00-5b64-11eb-94b3-66d88a6256d9.png)
+
+
 
 ## Circuit Breaker 점검
 
