@@ -119,7 +119,8 @@ http http://gateway:8080/orders
 ```
 ![image](https://user-images.githubusercontent.com/25506725/105173947-1d84d080-5b65-11eb-8fd3-9975adb5aff2.png)
 
-### 장애 격리
+####Kithen 서비스 장애 시 주문 불가
+
 ```
 1. Kithen 서비스 중지
 	kubectl delete deploy Kithen
