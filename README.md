@@ -154,10 +154,12 @@ http http://gateway:8080/orders
 ## Autoscale 점검
 
 1. Deployment.yaml 파일 설정
+
 ![image](https://user-images.githubusercontent.com/25506725/105182173-1616f480-5b70-11eb-85ca-d9a5f44d180b.png)
 
 1. HPA 생성 및 설정
  kubectl autoscale deployment kitchen --cpu-percent=10 --min=1 --max=10
+ 
 ![image](https://user-images.githubusercontent.com/25506725/105181828-a4d74180-5b6f-11eb-82aa-70eecce67fca.png)
 
 2. Siege 실행 및 pod 개수 확인
