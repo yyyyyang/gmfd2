@@ -32,7 +32,7 @@
 
 
 # Event Storming 모델
- ![image](https://user-images.githubusercontent.com/62786155/105103637-3f923a80-5af4-11eb-9107-52e919060740.PNG)
+ ![image](https://user-images.githubusercontent.com/25506725/105121213-0b7c4100-5b17-11eb-8544-29b14ea6b8d9.png)
 
 ## 구현 점검
 
