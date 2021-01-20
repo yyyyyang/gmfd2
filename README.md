@@ -183,4 +183,3 @@ http http://gateway:8080/orders
 ![image](https://user-images.githubusercontent.com/25506725/105186132-b96a0880-5b74-11eb-8d6a-a3fa3a5e981c.png)
 
 
-#### 5. CofingMap 적용
