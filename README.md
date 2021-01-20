@@ -163,6 +163,7 @@ http http://gateway:8080/orders
 ![image](https://user-images.githubusercontent.com/25506725/105181828-a4d74180-5b6f-11eb-82aa-70eecce67fca.png)
 
 2. Siege 실행 및 pod 개수 확인
+AutoScale적용 후 seige를 통해서 부하 테스트 시 pod 개수가 증가함
 
   ![image](https://user-images.githubusercontent.com/25506725/105190386-49aa4c80-5b79-11eb-94db-927f988b0435.png)
 
