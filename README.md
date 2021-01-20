@@ -115,6 +115,12 @@ http http://gateway:8080/orders
 ##### Kithen 취소, 주문취소, Delivery 취소, Payment 취소 메시지 전송
 ![image](https://user-images.githubusercontent.com/25506725/105155008-76486f00-5b4d-11eb-9679-cd8444fd87e6.png)
 
+##### MyOrder 조회 (CQRS), 현재상태 확인
+```
+# http http://gateway:8080/myOrders
+```
+![image](https://user-images.githubusercontent.com/25506725/105156335-0aff9c80-5b4f-11eb-8a03-eb7b9b998b66.png)
+
 ### 장애 격리
 ```
 1. Delivery 서비스 중지
