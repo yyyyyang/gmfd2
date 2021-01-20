@@ -12,23 +12,27 @@
 1. 고객이 음식을 주문하고, 주문을 생성할때는 고객정보와 음식 카탈로그 정보가 있어야 한다.
     1. Order -> Customer 동기호출
     1. Order -> FoodCatalog 동기호출
-1. 고객이 결제를 한다.
-1. 결제가 완료되면 주문 내역이 배송팀에게 전달된다.
+1. 고객이 주문을 한다.
+1. 결제가되고 주방팀의 확인이 되면 주방팀이 주문 확인 후 주문 내역이 배송팀에게 전달된다.
 1. 배송팀이 주문 확인 후 배송 처리한다.
 1. 배송이 완료되면 상태가 업데이트 된다.
 1. 고객이 주문을 취소할 수 있다.
 1. 고객이 주문을 취소하면 배송팀 확인후 배송이 취소된다.
 1. 배송이 취소되면 결제도 취소된다.
-1. 고객이 주문하거나 취소를 하면 음식 Catalog 의 재고수량에 반영이 되어야 한다.
+1. 주방팀(매니저)가 주문을 취소하면 주문 취소확인 후 배송이 취소된다.
+1. 배송이 취소되면 결제도 취소된다.
+1. 고객이 주문하거나 취소, 주방팀이 주문 취소를 하면 음식 Catalog 의 재고수량에 반영이 되어야 한다.
+
 
 비기능적 요구사항
 
 1. 트랜잭션
     1. 결제가 되지 않은 주문건은 아예 거래가 성립되지 않아야 한다  Sync 호출
 1. 장애격리
-    1. 결제시스템이 과중되면 사용자를 잠시동안 받지 않고 결제를 잠시후에 하도록 유도한다  Circuit breaker, fallback
+    1. 주방시스템이 과중되면 사용자를 잠시동안 받지 않고 결제를 잠시후에 하도록 유도한다  Circuit breaker, fallback
 1. 성능
     1. 고객은 자신이 주문한 내용과 배달상태를 나의 주문정보(프론트엔드)에서 확인할 수 있어야 한다  CQRS
+    1. 고객은 등록된 상품에 리뷰를 남길 수 있고 리뷰정보(프론트엔드)에서 확인할 수 있어야 한다.
 
 
 # Event Storming 모델
@@ -49,6 +53,9 @@ http http://gateway:8080/myOrders
 http http://gateway:8080/pays
 http http://gateway:8080/foodCatalogs
 http http://gateway:8080/foodCatalogViews
+http http://gateway:8080/kithens
+http http://gateway:8080/reviews
+http http://gateway:8080/reviewViews
 ```
 
 ### Kafka 기동 및 모니터링 용 Consumer 연결
@@ -58,129 +65,41 @@ kubectl -n kafka exec -ti my-kafka-0 -- /usr/bin/kafka-console-consumer --bootst
 
 ### 고객 생성
 ```
-http POST http://gateway:8080/customers name=lee phone=010 address=seoul age=29
-http POST http://gateway:8080/customers name=kim phone=011 address=busan age=35
+http POST http://gateway:8080/customers name=yang phone=01011 address=korea11 age=27
 ```
+![image](https://user-images.githubusercontent.com/25506725/105141820-11851880-5b3d-11eb-89f9-21fa67e0a203.png)
+
 
 ### FoodCatalog 정보 생성
 ```
-# http POST http://gateway:8080/foodCatalogs name=pizza stock=100 price=1000             
-
-HTTP/1.1 201 Created
-Content-Type: application/json;charset=UTF-8
-Date: Tue, 19 Jan 2021 10:51:18 GMT
-Location: http://foodCatalog:8080/foodCatalogs/1
-transfer-encoding: chunked
-
-{
-    "_links": {
-        "foodCatalog": {
-            "href": "http://foodCatalog:8080/foodCatalogs/1"
-        },
-        "self": {
-            "href": "http://foodCatalog:8080/foodCatalogs/1"
-        }
-    },
-    "name": "pizza",
-    "price": 1000.0,
-    "stock": 100
-} 
-
-
-$ http POST http://gateway:8080/foodCatalogs name=meat stock=100 price=2000
-
-HTTP/1.1 201 Created
-Content-Type: application/json;charset=UTF-8
-Date: Tue, 19 Jan 2021 10:53:52 GMT
-Location: http://foodCatalog:8080/foodCatalogs/2
-transfer-encoding: chunked
-
-{
-    "_links": {
-        "foodCatalog": {
-            "href": "http://foodCatalog:8080/foodCatalogs/2"
-        },
-        "self": {
-            "href": "http://foodCatalog:8080/foodCatalogs/2"
-        }
-    },
-    "name": "meat",
-    "price": 2000.0,
-    "stock": 100
-}      
-
+# http POST http://gateway:8080/foodCatalogs name=cake stock=100 price=4.0  
 ```
+![image](https://user-images.githubusercontent.com/25506725/105142051-6cb70b00-5b3d-11eb-92bc-3753eabcc8d4.png)
+
 
 ### 주문 생성
 ```
-http POST http://gateway:8080/orders qty=20 foodcaltalogid=1 customerid=1
+http POST http://gateway:8080/orders qty=10 foodcaltalogid=1 customerid=1
 ```
+![image](https://user-images.githubusercontent.com/25506725/105142436-f1098e00-5b3d-11eb-8e66-812b7c2ebeb4.png)
+
+### 주문 확인
+```
+http POST http://gateway:8080/orders qty=10 foodcaltalogid=1 customerid=1
+```
+![image](https://user-images.githubusercontent.com/25506725/105142747-4c3b8080-5b3e-11eb-9289-ee053ed5570c.png)
 
 ##### Message 전송 확인 결과
 ```
 {"eventType":"Ordered","timestamp":"20210119130159","id":3,"qty":20,"status":null,"foodcaltalogid":1,"customerid":1,"me":true}
 ```
 
-##### Delivery 확인 결과
-```
-# http http://gateway:8080/deliveries
-
-HTTP/1.1 200 OK
-Content-Type: application/hal+json;charset=UTF-8
-Date: Tue, 19 Jan 2021 13:04:21 GMT
-transfer-encoding: chunked
-
-{
-    "_embedded": {
-        "deliveries": [
-         {
-                "_links": {
-                    "delivery": {
-                        "href": "http://delivery:8080/deliveries/4"
-                    },
-                    "self": {
-                        "href": "http://delivery:8080/deliveries/4"
-                    }
-                },
-                "orderId": 3,
-                "status": "Ordered"
-            }
-        ]
-    } 
-}
-```
-
-##### MyOrder 조회 (CQRS)
+##### MyOrder 조회 (CQRS), 현재상태 확인
 ```
 # http http://gateway:8080/myOrders
-
-Content-Type: application/hal+json;charset=UTF-8
-Date: Tue, 19 Jan 2021 12:48:28 GMT
-transfer-encoding: chunked
-
-{
-    "_embedded": {
-        "myOrders": [
- {
-                "_links": {
-                    "myOrder": {
-                        "href": "http://customer:8080/myOrders/5"
-                    },
-                    "self": {
-                        "href": "http://customer:8080/myOrders/5"
-                    }
-                },
-                "customerid": 1,
-                "deliveryid": 3,
-                "foodcatlogid": 1,
-                "orderid": 3,
-                "qty": 20,
-                "status": “Delivery Start”
-            }
-        ]
-    }
-}
 ```
+![image](https://user-images.githubusercontent.com/25506725/105147541-ae977f80-5b44-11eb-8890-876c49ff2019.png)
+
 
 ### 주문 취소
 ```
