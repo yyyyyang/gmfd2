@@ -142,7 +142,8 @@ http http://gateway:8080/orders
 ## Circuit Breaker 점검
 
 ### Hystrix로 설정
-application.yml에 Hystrix를 설정
+kitchen 서비스 application.yml에 Hystrix를 설정
+
 ![image](https://user-images.githubusercontent.com/25506725/105178182-0e088600-5b6b-11eb-8216-3339cd68bf27.png)
 
 서비스(주방:kitchen) 의 임의 부하 처리 - 400 밀리에서 증감 220 밀리 정도 왔다갔다 하게 설정
