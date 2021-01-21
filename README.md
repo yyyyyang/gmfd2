@@ -178,7 +178,7 @@ AutoScale적용 후 seige를 통해서 부하 테스트 시 pod 개수가 증가
 
 1.siege로 계속 호출하는 중에 kubectl set image를 통해서 배포 시 무중단 배포 확인, 
 
- kubectl set image deployment order order=final05crg.azurecr.io/order:latest
+ kubectl set image deployment kitchen order=skcc10.azurecr.io/kitchen:latest
  
 2.Readiness 적용 전: 소스배포시 오류 발생
 
